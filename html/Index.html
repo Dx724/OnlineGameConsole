@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no"/>
+	<title>Web-Based Gaming Console</title>
+	<link rel="stylesheet" type="text/css" href="/css.css"/>
+	<script src="./socket-io.js"></script>
+</head>
+<body>
+	<script> //NOTE: *touchup* event may trigger twice on a button touch
+		var modeSet = false;
+		var socket = io();
+		socket.emit("test", 5);
+		socket.on("test", function(message) {
+			console.log(message);
+		});
+		
+		function setMode_controller() {
+			setMode_UI();
+			setMode_sendPacket("controller");
+			document.getElementById("UI-holder").innerHTML = "<p id=\"controller_text\"></p>" + //TODO: Player Number
+				"<div class=\"contentCenterer\" id=\"controller_centerer\">" +
+					"<div class=\"controlButton\" id=\"button_left\">" +
+						"<span class=\"controlButtonContent\">Z</span>" +
+					"</div>" +
+					"<div class=\"controlButton\" id=\"button_right\">" +
+						"<span class=\"controlButtonContent\">X</span>" +
+					"</div>" +
+				"</div>";
+			
+			document.getElementById("button_left").onmousedown = function(event) { //LEFT DOWN
+				this.classList.add("controlButton_active");
+				socket.emit("controlButton", [0, 1]); //[Left/Right, Up/Down]
+			};
+			document.getElementById("button_right").onmousedown = function(event) { //RIGHT DOWN
+				this.classList.add("controlButton_active");
+				socket.emit("controlButton", [1, 1]);
+			};
+			document.getElementById("button_left").addEventListener("touchstart", function(event) {
+				document.getElementById("button_left").onmousedown();
+			});
+			document.getElementById("button_right").addEventListener("touchstart", function(event) {
+				document.getElementById("button_right").onmousedown();
+			});
+			document.getElementById("button_left").onmouseup = function() { //LEFT UP
+				this.classList.remove("controlButton_active");
+				socket.emit("controlButton", [0, 0]);
+			};
+			document.getElementById("button_right").onmouseup = function() { //RIGHT UP
+				this.classList.remove("controlButton_active");
+				socket.emit("controlButton", [1, 0]);
+			};
+			document.getElementById("button_left").addEventListener("touchend", function(event) {
+				document.getElementById("button_left").onmouseup();
+			});
+			document.getElementById("button_right").addEventListener("touchend", function(event) {
+				document.getElementById("button_right").onmouseup();
+			});
+			
+			window.onkeydown = function(event) { //TODO: Tip on display about using the keyboard as a controller
+				if (event.keyCode == 90) { //"z"
+					document.getElementById("button_left").onmousedown();
+				}
+				else if (event.keyCode == 88) { //"x"
+					document.getElementById("button_right").onmousedown();
+				}
+			}
+			window.onkeyup = function(event) {
+				if (event.keyCode == 90) { //"z"
+					document.getElementById("button_left").onmouseup();
+				}
+				else if (event.keyCode == 88) { //"x"
+					document.getElementById("button_right").onmouseup();
+				}
+			}
+		}
+		function setMode_display() {
+			setMode_UI();
+			setMode_sendPacket("display");
+			document.getElementById("UI-holder").innerHTML = "<div class=\"contentCenterer fillsScreen\" id=\"display_container\">" +
+					"<div id=\"display_textDisplay\">TEST TEXT</div>" +
+					"<table id=\"display_pixelsDisplay\">" + //*innerHTML* of *display_pixelsDisplay* is modified below.
+					"</table>" +
+				"</div>";
+			var display_table = document.getElementById("display_pixelsDisplay");
+			var table_row = "";
+			for (var x = 0; x < 32; x++) {
+				table_row += "<td class=\"display_pixel\"></td>";
+			}
+			var table_pixels = "";
+			for (var y = 0; y < 32; y++) {
+				table_pixels += "<tr>" + table_row + "</tr>";
+			}
+			display_table.innerHTML = "<tbody>" + table_pixels + "</tbody>";
+		}
+		function setMode_sendPacket(mode) {
+			if (modeSet) {
+				return;
+			}
+			socket.emit("set-mode", mode);
+			modeSet = true;
+		}
+		function setMode_UI() {
+			document.body.removeChild(document.getElementById("modeSelectors"));
+		}
+		
+		socket.on("colorizeDisplay", function(data) { //Data should be an array of 32 arrays, each containing 32 strings.
+			var tableBodyElement = document.getElementById("display_pixelsDisplay").children[0];
+			for (var y = 0; y < 32; y++) {
+				var currentRowElement = tableBodyElement.children[y];
+				for (var x = 0; x < 32; x++) {
+					currentRowElement.children[x].style.backgroundColor = data[y][x];
+				}
+			}
+		});
+		
+		socket.on("playerNumber", function(data) {
+			document.getElementById("controller_text").innerText = data;
+		});
+		
+		socket.on("roomNumber", function(data) {
+			document.getElementById("display_textDisplay").innerText = data;
+		});
+		
+		socket.on("kicked", function(reason) { //TODO: Add to server
+			socket.close();
+			showServerMessage(reason);
+		});
+		
+		socket.on("roomStatus", function(status) { //TODO: Add to server
+			if (status == "SUCCESS") {
+				document.getElementById("roomSelection").style.display = "none";
+				document.getElementById("modeSelectors").style.display = "inline-flex";
+			}
+			else if (status == "FAILED") {
+				showServerMessage("Invalid Room Number!");
+			}
+		});
+		
+		function showServerMessage(message) {
+			document.body.innerHTML = "<div class=\"contentCenterer fillsScreen\">" + //This removes the selection elements and some scripts from the web page.
+					"<div class=\"contentCenterer\" id=\"serverMessageContainer\">" + 
+						"<div id=\"serverMessage\">" + message + "</div>" +
+					"</div>"
+				"</div>";
+		}
+		
+		function joinRoom() {
+			socket.emit("roomJoin", document.getElementById("roomSelection_input").value);
+		}
+		
+		function newRoom() {
+			socket.emit("roomJoin", "new");
+		}
+		
+		function mobileLog(message) {
+			var newElement = document.createElement("p");
+			newElement.innerText = message;
+			document.body.insertBefore(newElement, document.body.firstChild);
+		}
+	</script>
+	<div id="UI-holder">
+		<!-- <div class="contentCenterer">
+			<input type="text" name="color" id="colorInput" onchange="updateColor()"/>
+		</div> -->
+	</div>
+	<div class="contentCenterer fillsScreen" id="roomSelection">
+		<input type="number" min="1000" max="9999" placeholder="1234" id="roomSelection_input"/>
+		<button id="roomSelection_joinButton" onclick="joinRoom()">Join<br/>Room</button>
+		<div id="roomSelection_spacer"></div>
+		<button id="roomSelection_newRoomButton" onclick="newRoom()">New<br/>Room</button>
+	</div>
+	<div class="contentCenterer fillsScreen" id="modeSelectors">
+		<div class="modeSelectionButton" onclick="setMode_controller()">
+			<div class="modeSelectionButtonContent">
+				Controller
+			</div>
+		</div>
+		<div class="modeSelectionButton" onclick="setMode_display()">
+			<div class="modeSelectionButtonContent">
+				Display
+			</div>
+		</div>
+	</div>
+	<script>
+		document.getElementById("roomSelection_input").oninput = function() {
+			if (this.value.length > 4) { //In this context, *this* is equal to html:*#roomSelection_input*.
+				this.value = this.value.slice(0, 4);
+			}
+		}
+	</script>
+</body>
+</html>

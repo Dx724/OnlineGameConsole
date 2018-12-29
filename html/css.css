@@ -1,0 +1,142 @@
+#roomSelection {
+
+}
+
+#roomSelection_input {
+	text-align: center;
+	font-size: 15vmin;
+	height: 15vmin;
+	margin: 0px;
+	padding: 1vmin;
+	border-radius: 1px;
+	border: 1px solid black;
+}
+
+#roomSelection_joinButton, #roomSelection_newRoomButton {
+	margin: 0px;
+	padding: 0px;
+	width: 17vmin;
+	height: 17vmin;
+	font-size: 3.25vmin;
+	font-weight: bold;
+}
+
+#modeSelectors {
+	display: none;
+}
+
+.modeSelectionButton {
+	margin: 1vh 0.5vh;
+	padding: 0px;
+	flex-grow: 1;
+	width: 48vw; /* Using 48vw here doesn't seem to work */
+	height: 98vh;
+	display: inline-flex;
+	background-color: #cfcfcf;
+	justify-content: center;
+	align-items: center;
+}
+
+.modeSelectionButtonContent {
+	font-size: 10vmin;
+	cursor: default;
+}
+
+.controlButton {
+	margin: 0.5vh 0.5vw;
+	padding: 0px;
+	flex-grow: 1;
+	width: 48vw;
+	height: 93vh;
+	background-color: #cecece;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.controlButton_active {
+	background-color: #ababab;
+}
+
+.controlButtonContent {
+	font-size: 30vh;
+	cursor: default;
+	pointer-events: none;
+}
+
+#controller_text {
+	margin: 0px;
+	padding: 0px;
+	height: 5vh;
+	font-size: 5vh;
+	text-align: center;
+	white-space: nowrap;
+}
+
+#controller_centerer {
+	height: 95vh;
+}
+
+#display_container {
+	flex-direction: column;
+}
+
+#display_textDisplay {
+	font-size: 5vh;
+	margin: 0px;
+	padding: 1vmin;
+	white-space: nowrap;
+}
+
+#display_pixelsDisplay {
+	margin: 0px;
+	padding: 0px;
+}
+
+.display_pixel {
+	margin: 1px;
+	padding: 1px;
+	width: 2vmin;
+	height: 2vmin;
+	background-color: black;
+	border: 1px solid white;
+}
+
+html, body {
+	margin: 0px;
+	padding: 0px;
+}
+
+.contentCenterer {
+	margin: 0px;
+	padding: 0px;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+}
+
+#UI-holder {
+	margin: 0px;
+	padding: 0px;
+}
+
+.fillsScreen {
+	width: 100vw;
+	height: 100vh;
+}
+
+#serverMessageContainer {
+	width: 80vw;
+	height: 37.5vh;
+	background-color: #777777;
+	border: 3vmin solid #cccccc;
+	border-radius: 3vmin;
+}
+
+#serverMessage {
+	text-align: center;
+	font-size: 12vmin;
+	color: #f0f0f0;
+}
