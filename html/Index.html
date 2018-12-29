@@ -38,10 +38,14 @@
 				socket.emit("controlButton", [1, 1]);
 			};
 			document.getElementById("button_left").addEventListener("touchstart", function(event) {
-				document.getElementById("button_left").onmousedown();
+				document.getElementById("button_left").onmousedown = null;
+				this.classList.add("controlButton_active");
+				socket.emit("controlButton", [0, 1]); //[Left/Right, Up/Down]
 			});
 			document.getElementById("button_right").addEventListener("touchstart", function(event) {
-				document.getElementById("button_right").onmousedown();
+				document.getElementById("button_right").onmousedown = null;
+				this.classList.add("controlButton_active");
+				socket.emit("controlButton", [1, 1]);
 			});
 			document.getElementById("button_left").onmouseup = function() { //LEFT UP
 				this.classList.remove("controlButton_active");
@@ -52,10 +56,14 @@
 				socket.emit("controlButton", [1, 0]);
 			};
 			document.getElementById("button_left").addEventListener("touchend", function(event) {
-				document.getElementById("button_left").onmouseup();
+				document.getElementById("button_left").onmouseup = null;
+				this.classList.remove("controlButton_active");
+				socket.emit("controlButton", [0, 0]);
 			});
 			document.getElementById("button_right").addEventListener("touchend", function(event) {
-				document.getElementById("button_right").onmouseup();
+				document.getElementById("button_right").onmouseup = null;
+				this.classList.remove("controlButton_active");
+				socket.emit("controlButton", [1, 0]);
 			});
 			
 			window.onkeydown = function(event) { //TODO: Tip on display about using the keyboard as a controller

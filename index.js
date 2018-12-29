@@ -80,7 +80,7 @@ var server = http.createServer(function(request, response) {
 			response.end();
 		}
 	}
-).listen(8756);
+).listen(process.env.PORT);
 console.log("Server started.");
 
 var games = require("./games");
@@ -262,6 +262,8 @@ socketsModule.on("connection", function(socket) {
 		else if (message == "controller") {
 			console.log("Changing mode from \"" + socket.data_mode + "\" to \"controller\".");
 			socket.data_mode = "controller";
+			socket.last_input_z = "none";
+			socket.last_input_x = "none";
 			//socket.leave("displays");
 			//socket.join("controllers");
 			var room = rooms[String(socket.data_roomID)];
@@ -270,7 +272,16 @@ socketsModule.on("connection", function(socket) {
 			
 			socket.emit("playerNumber", "Player Number: " + String(socket.data_playerNumber));
 			socket.on("controlButton", function(data) { //Pass to the socket's current game
-				rooms[String(socket.data_roomID)].currentGame.input(socket.data_playerNumber, data[0], data[1]);
+				var lastState = (data[0] == 0) ? socket.last_input_z : socket.last_input_x;
+				if (data[1] != lastState) {
+					rooms[String(socket.data_roomID)].currentGame.input(socket.data_playerNumber, data[0], data[1]);
+				}
+				if (data[0] == 0) { //"Z"
+					socket.last_input_z = data[1];
+				}
+				else { //"X"
+					socket.last_input_x = data[1];
+				}
 				
 				/*if (data[1] == 0) { //Button released
 					if (data[0] == 0) { //Left button

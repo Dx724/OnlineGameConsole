@@ -170,6 +170,26 @@ exports.snake = () => ({ //TODO: Food eating
 				}
 			}
 		}
+		
+		//Respawn snakes
+		for (var snakeIdx = 0; snakeIdx < this.snakes.length; snakeIdx++) {
+			if (this.snakes[snakeIdx].alive == false) {
+				var [x, y] = snake_findSuitableLocation(this.snakes, this.foodPellets);
+				var startingDirection;
+				if (x < 16) {
+					startingDirection = "east";
+				}
+				else {
+					startingDirection = "west";
+				}
+				this.snakes[snakeIdx] = {
+					segments: [[x, y]],
+					pendingSegments: 3, //Start with a snake length of 4.
+					alive: true,
+					direction: startingDirection
+				};
+			}
+		}
 	},
 	input: function(playerNumber, button, state) {
 		if (state == 1) { //Button pressed down
